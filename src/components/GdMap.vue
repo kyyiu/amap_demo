@@ -19,7 +19,7 @@ export default {
       AMapLoader.load({
         key: '217f742a2872bed13025f46ff0dde325', // 申请好的Web端开发者Key，首次调用 load 时必填
         version: '2.0', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
-        plugins: [''] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
+        plugins: ['AMap.ToolBar', 'AMap.Scale', 'AMap.HawkEye', 'AMap.MapType', 'AMap.Geolocation'] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
       })
         .then(AMap => {
           this.map = new AMap.Map('container', {
@@ -28,6 +28,11 @@ export default {
             zoom: 10, //初始化地图级别
             center: [121, 31] //初始化地图中心点位置
           })
+          this.map.addControl(new AMap.Scale())
+          this.map.addControl(new AMap.ToolBar())
+          this.map.addControl(new AMap.HawkEye())
+          this.map.addControl(new AMap.MapType())
+          this.map.addControl(new AMap.Geolocation())
           // let marker1 = new AMap.Marker({
           //   position: new AMap.LngLat(121, 31), // 经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
           //   title: '上海'
