@@ -17,9 +17,10 @@ export default {
       // 而autoOptions是我们要接收的input输入框的id对象所以在其中定义input接收值为空即可
       map: null,
       autoOptions: {
-        inputId: ''
+        input: ''
       },
-      auto: null
+      auto: null,
+      placeSearch: null
     }
   },
   methods: {
@@ -27,7 +28,7 @@ export default {
       AMapLoader.load({
         key: '217f742a2872bed13025f46ff0dde325', // 申请好的Web端开发者Key，首次调用 load 时必填
         version: '2.0', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
-        plugins: ['AMap.ToolBar', 'AMap.Scale', 'AMap.HawkEye', 'AMap.MapType', 'AMap.Geolocation', 'AMap.AutoComplete'] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
+        plugins: ['AMap.PlaceSearch','AMap.ToolBar', 'AMap.Scale', 'AMap.HawkEye', 'AMap.MapType', 'AMap.Geolocation', 'AMap.AutoComplete'] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
       })
         .then(AMap => {
           this.map = new AMap.Map('container', {
@@ -43,6 +44,10 @@ export default {
           this.map.addControl(new AMap.Geolocation())
 
           this.auto = new AMap.AutoComplete(this.autoOptions)
+          this.placeSearch = new AMap.PlaceSearch({
+            map: this.map
+          }) //构造地点查询类
+          this.auto.on('select', this.select)
           // let marker1 = new AMap.Marker({
           //   position: new AMap.LngLat(121, 31), // 经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
           //   title: '上海'
@@ -53,11 +58,16 @@ export default {
         .catch(e => {
           console.log(e)
         })
+    },
+    select(e) {
+      console.log('mmm',e)
+      this.placeSearch.setCity(e.poi.adcode)
+      this.placeSearch.search(e.poi.name) //关键字查询查询
     }
   },
   created(){
     bus.$on(placeInput, ()=>{
-      this.autoOptions.inputId = placeInput
+      this.autoOptions.input = placeInput
     })
   },
   mounted() {
