@@ -21,7 +21,9 @@ export default {
       },
       auto: null,
       placeSearch: null,
-      searchInputStr: ''
+      searchInputStr: '',
+      district: null,
+      polygons: []
     }
   },
   methods: {
@@ -64,6 +66,48 @@ export default {
       console.log('mmm',e)
       this.placeSearch.setCity(e.poi.adcode)
       this.placeSearch.search(e.poi.name) //关键字查询查询
+      this.drawBounds(e.poi.name)
+    },
+    // 行政区区域划分
+    // 原理: 使用高德地图的AMap.DistrictSearch进行搜索后获取区域边界的坐标值，然后将坐标值提取成数组，最后进行绘制
+    drawBounds(newValue) {
+      //加载行政区划插件
+      if (!this.district) {
+        //实例化DistrictSearch
+        var opts = {
+          subdistrict: 0, //获取边界不需要返回下级行政区
+          extensions: 'all', //返回行政区边界坐标组等具体信息
+          level: 'district' //查询行政级别为 市
+        }
+
+        this.map.plugin(['AMap.DistrictSearch'], () => {
+          this.district = new AMap.DistrictSearch(opts)
+        })
+        // this.district = new AMap.DistrictSearch(opts)
+      }
+      //行政区查询
+      this.district.search(newValue, (status, result) => {
+        if (this.polygons != null) {
+          this.map.remove(this.polygons) //清除上次结果
+          this.polygons = []
+        }
+        var bounds = result.districtList[0].boundaries
+        if (bounds) {
+          for (var i = 0, l = bounds.length; i < l; i++) {
+            //生成行政区划polygon
+            var polygon = new AMap.Polygon({
+              strokeWeight: 1,
+              path: bounds[i],
+              fillOpacity: 0.4,
+              fillColor: '#80d8ff',
+              strokeColor: '#0091ea'
+            })
+            this.polygons.push(polygon)
+          }
+        }
+        this.map.add(this.polygons)
+        this.map.setFitView(this.polygons) //视口自适应
+      })
     }
   },
   created(){
@@ -80,6 +124,7 @@ export default {
     searchInputStr(newValue) {
       if (newValue != null) {
         this.placeSearch.search(newValue)
+        this.drawBounds(newValue)
       }
     }
   }
