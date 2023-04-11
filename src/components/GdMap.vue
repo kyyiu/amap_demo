@@ -3,6 +3,7 @@
 </template>
 
 <script>
+import bus, {placeInput} from '@/eventBus/eventBus.js'
 import AMapLoader from '@amap/amap-jsapi-loader'
 window._AMapSecurityConfig = {
     securityJsCode: 'c9ada3067f560745f25900b8cf53c84d' // 安全密钥
@@ -11,7 +12,14 @@ export default {
   name: 'GdMap',
   data() {
     return {
-      map: null
+      // 定义autoOptions和auto
+      // auto是用于我们进行输入提示的接收变量，由于是new出的一个对象所以定义初始值为null
+      // 而autoOptions是我们要接收的input输入框的id对象所以在其中定义input接收值为空即可
+      map: null,
+      autoOptions: {
+        inputId: ''
+      },
+      auto: null
     }
   },
   methods: {
@@ -19,7 +27,7 @@ export default {
       AMapLoader.load({
         key: '217f742a2872bed13025f46ff0dde325', // 申请好的Web端开发者Key，首次调用 load 时必填
         version: '2.0', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
-        plugins: ['AMap.ToolBar', 'AMap.Scale', 'AMap.HawkEye', 'AMap.MapType', 'AMap.Geolocation'] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
+        plugins: ['AMap.ToolBar', 'AMap.Scale', 'AMap.HawkEye', 'AMap.MapType', 'AMap.Geolocation', 'AMap.AutoComplete'] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
       })
         .then(AMap => {
           this.map = new AMap.Map('container', {
@@ -33,6 +41,8 @@ export default {
           this.map.addControl(new AMap.HawkEye())
           this.map.addControl(new AMap.MapType())
           this.map.addControl(new AMap.Geolocation())
+
+          this.auto = new AMap.AutoComplete(this.autoOptions)
           // let marker1 = new AMap.Marker({
           //   position: new AMap.LngLat(121, 31), // 经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
           //   title: '上海'
@@ -44,6 +54,11 @@ export default {
           console.log(e)
         })
     }
+  },
+  created(){
+    bus.$on(placeInput, ()=>{
+      this.autoOptions.inputId = placeInput
+    })
   },
   mounted() {
     //DOM初始化完成进行地图初始化
