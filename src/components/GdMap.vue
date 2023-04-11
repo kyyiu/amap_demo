@@ -20,7 +20,8 @@ export default {
         input: ''
       },
       auto: null,
-      placeSearch: null
+      placeSearch: null,
+      searchInputStr: ''
     }
   },
   methods: {
@@ -66,13 +67,21 @@ export default {
     }
   },
   created(){
-    bus.$on(placeInput, ()=>{
+    bus.$on(placeInput, (place)=>{
       this.autoOptions.input = placeInput
+      this.searchInputStr = place
     })
   },
   mounted() {
     //DOM初始化完成进行地图初始化
     this.initMap()
+  },
+  watch: {
+    searchInputStr(newValue) {
+      if (newValue != null) {
+        this.placeSearch.search(newValue)
+      }
+    }
   }
 }
 </script>
