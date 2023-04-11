@@ -51,12 +51,12 @@ export default {
             map: this.map
           }) //构造地点查询类
           this.auto.on('select', this.select)
-          // let marker1 = new AMap.Marker({
-          //   position: new AMap.LngLat(121, 31), // 经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
-          //   title: '上海'
-          // })
-          //添加点标记
-          // this.map.marker = [121, 31]
+          let marker1 = new AMap.Marker({
+            position: new AMap.LngLat(121, 31), // 经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
+            title: '上海'
+          })
+          // 添加点标记
+          this.map.add(marker1)
         })
         .catch(e => {
           console.log(e)
